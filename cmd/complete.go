@@ -41,5 +41,5 @@ var completeCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(completeCmd)
-	completeCmd.Flags().BoolVarP(&idFlag, "id", "i", false, "Include all items")
+	completeCmd.Flags().BoolVarP(&idFlag, "id", "i", false, "Use Id to complete a task")
 }
