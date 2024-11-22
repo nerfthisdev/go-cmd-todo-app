@@ -1,6 +1,3 @@
-/*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
@@ -12,6 +9,8 @@ import (
 )
 
 var all bool
+
+var listId bool
 
 // listCmd represents the list command
 var listCmd = &cobra.Command{
@@ -28,39 +27,47 @@ var listCmd = &cobra.Command{
 }
 
 func listAll() {
+
 	tasks, _ := storagemodule.LoadStorage()
 	w := tabwriter.NewWriter(os.Stdout, 0, 4, 8, ' ', 0)
-	w.Write([]byte("Id\tName\tStatus\tDateCreated\n"))
+	printHeader(w)
 	for _, task := range tasks {
-		w.Write([]byte(task.String() + "\n"))
-
+		printTaskRow(w, task)
 	}
 	w.Flush()
 }
 
 func listNotCompleted() {
 	tasks, _ := storagemodule.LoadStorage()
-	w := tabwriter.NewWriter(os.Stdout, 0, 4, 8, ' ', 0)
-	w.Write([]byte("Id\tName\tStatus\tDateCreated\n"))
+	w := tabwriter.NewWriter(os.Stdout, 0, 4, 6, ' ', 0)
+	printHeader(w)
 	for _, task := range tasks {
 		if !task.Status {
-			w.Write([]byte(task.String() + "\n"))
+			printTaskRow(w, task)
 		}
 	}
 	w.Flush()
 
 }
 
+func printHeader(w *tabwriter.Writer) {
+	if listId {
+		w.Write([]byte("Id\tStatus\tDescription\tDateCreated\n"))
+	} else {
+		w.Write([]byte("Status\tDescription\tDateCreated\n"))
+	}
+}
+
+func printTaskRow(w *tabwriter.Writer, task storagemodule.Task) {
+	if listId {
+		w.Write([]byte(task.StringWithId() + "\n"))
+	} else {
+		w.Write([]byte(task.String() + "\n"))
+	}
+}
+
 func init() {
 	rootCmd.AddCommand(listCmd)
 	listCmd.Flags().BoolVarP(&all, "all", "a", false, "Include all items")
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// listCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// listCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	listCmd.Flags().BoolVarP(&listId, "id", "i", false, "Show id all items")
 }
